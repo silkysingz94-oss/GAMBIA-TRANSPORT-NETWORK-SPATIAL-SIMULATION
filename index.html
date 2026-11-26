@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SILKYSINGZ | Gambia Urban Transport Planning & Simulation</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<style>
+:root{--navy:#10243a;--navy2:#173651;--teal:#0c9b8e;--gold:#e3ad42;--bg:#f2f5f8;--ink:#182b3c;--muted:#708092;--line:#dfe6ec;--white:#fff;--red:#d75b55;--green:#248b63}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(to bottom,rgba(206,41,47,.075) 0 31%,rgba(255,255,255,.88) 31% 36%,rgba(30,72,132,.09) 36% 64%,rgba(255,255,255,.88) 64% 69%,rgba(23,75,54,.075) 69% 100%),var(--bg);background-attachment:fixed;color:var(--ink);font:14px/1.45 Inter,Segoe UI,Arial,sans-serif}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;background:linear-gradient(to bottom,#ce292f 0 30%,#fff 30% 36%,#1c4587 36% 64%,#fff 64% 70%,#174b36 70% 100%);opacity:.055}
+header{background:linear-gradient(115deg,var(--navy),#17445a);color:#fff;padding:18px 22px;display:flex;justify-content:space-between;gap:20px;align-items:center;flex-wrap:wrap;border-bottom:4px solid var(--gold)}
+.brand{display:flex;align-items:center;gap:13px}.flag{width:42px;height:28px;background:linear-gradient(to bottom,#ce292f 0 33%,#fff 33% 39%,#174b36 39% 61%,#fff 61% 67%,#174b36 67%);border:1px solid #ddd}
+h1{font-size:19px;margin:0;letter-spacing:.5px}.sub{font-size:11px;color:#c9d8e4;margin-top:3px}.header-right{text-align:right;font-size:11px;color:#d9e5ec}
+.toolbar{background:#fff;border-bottom:1px solid var(--line);padding:9px 18px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+button,select,input{font:inherit}button{border:0;border-radius:6px;padding:9px 13px;background:#eaf0f4;color:#24394c;cursor:pointer;font-weight:600}button.primary{background:var(--teal);color:white}button.dark{background:var(--navy2);color:white}button:hover{filter:brightness(.96)}.status{margin-left:auto;color:var(--muted);font-size:11px}
+.layout{display:grid;grid-template-columns:minmax(260px,290px) minmax(430px,1fr) minmax(285px,330px);gap:12px;padding:12px;max-width:2000px;margin:auto;align-items:stretch;height:calc(100vh - 116px);min-height:620px;overflow:hidden}.layout>aside.panel,.rightcol{height:100%;max-height:none;min-height:0;overflow-y:auto;overscroll-behavior:contain;position:relative;top:auto;scrollbar-width:thin;scrollbar-color:#a9bac6 #edf2f5}.rightcol{display:flex;flex-direction:column;gap:12px;padding-right:3px}.rightcol>.panel{flex:0 0 auto}.left-controls{scrollbar-gutter:stable}.map-column{height:100%;min-height:0;position:sticky;top:0;overflow:hidden}.chart-stack{display:flex;flex-direction:column;gap:10px;margin-top:12px}.chart-stack .chart-card{width:100%}.chart-stack .chartbox{height:175px}.chart-stack .chartbox.tall{height:205px}
+.panel{background:#fff;border:1px solid var(--line);border-radius:9px;overflow:hidden;box-shadow:0 2px 8px #10243a0a}.panel-head{padding:12px 14px;background:#f8fafb;border-bottom:1px solid var(--line);font-weight:750;color:var(--navy);display:flex;justify-content:space-between;align-items:center}.panel-body{padding:13px}.section{margin-bottom:15px}.section h3{font-size:12px;text-transform:uppercase;letter-spacing:.7px;color:#557083;margin:0 0 9px}
+label{display:block;font-size:11px;font-weight:650;color:#526678;margin:8px 0 4px}input[type=number],input[type=text],select{width:100%;border:1px solid #d5dee6;border-radius:5px;padding:8px;background:#fff;color:#24394c}input[type=range]{width:100%;accent-color:var(--teal)}.range-row{display:flex;justify-content:space-between;font-size:11px;color:var(--muted)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}.check{display:flex;align-items:center;gap:7px;font-size:12px;margin:7px 0;color:#40566a}.check input{accent-color:var(--teal)}
+#map{height:calc(100vh - 245px);min-height:440px;max-height:760px;width:100%;background:#e6edf0}.map-panel{height:100%;display:flex;flex-direction:column}.map-wrap{flex:1;min-height:0}.map-wrap #map{height:100%;min-height:440px}.map-description{padding:9px 12px;background:#fff;border-bottom:1px solid var(--line);font-size:11px;color:#607486}.left-controls .chart-card,.rightcol .chart-card{margin:0}.chartbox.tall{height:230px}.description{background:#fff;border:1px solid var(--line);border-left:4px solid var(--teal);border-radius:8px;padding:13px 15px;margin-bottom:12px}.description h2{font-size:14px;margin:0 0 5px;color:var(--navy)}.description p{font-size:11px;color:#627587;margin:5px 0}.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.stat-mini{padding:9px;border:1px solid #e5ebef;border-radius:7px;background:#fbfcfd}.stat-mini small{font-size:9px;text-transform:uppercase;color:#728493;font-weight:700}.stat-mini strong{display:block;font-size:16px;color:var(--navy);margin-top:2px}.map-wrap{position:relative}.map-legend{position:absolute;z-index:500;bottom:12px;left:12px;background:#fff;padding:9px 11px;border-radius:7px;box-shadow:0 2px 8px #0002;font-size:11px;line-height:1.8}.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px}
+.map-top{padding:10px 12px;display:flex;gap:7px;align-items:center;flex-wrap:wrap;border-bottom:1px solid var(--line)}.map-top select{width:auto;min-width:130px;padding:7px}.map-top span{font-size:11px;color:var(--muted);margin-left:auto}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:12px}.kpi{background:#fff;border:1px solid var(--line);border-radius:8px;padding:11px}.kpi small{color:var(--muted);font-size:10px;text-transform:uppercase;font-weight:700}.kpi strong{display:block;font-size:21px;color:var(--navy);margin:3px 0}.kpi em{font-style:normal;color:var(--teal);font-size:10px}
+.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}.chart-card{background:#fff;border:1px solid var(--line);border-radius:8px;padding:12px;min-width:0}.chart-card h3{font-size:12px;margin:0 0 8px;color:var(--navy)}.chartbox{height:190px;position:relative}
+.result-table{width:100%;border-collapse:collapse;font-size:11px}.result-table td,.result-table th{padding:7px 5px;border-bottom:1px solid #edf1f4;text-align:left}.result-table th{color:#6b7e8d;font-weight:700}
+.pill{display:inline-block;padding:3px 7px;border-radius:20px;background:#e8f5f2;color:#087d72;font-size:10px;font-weight:700}.muted{color:var(--muted)}.note{font-size:10px;color:#718293;line-height:1.5}.wide{width:100%;margin-top:7px}.output{background:#f6f9fa;border:1px solid #e1e9ed;border-radius:7px;padding:10px;font-size:12px;min-height:50px;white-space:pre-wrap}.tabs{display:flex;gap:5px;flex-wrap:wrap;padding:10px 12px;border-bottom:1px solid var(--line)}.tab{padding:7px 9px;font-size:11px}.tab.active{background:var(--navy2);color:#fff}
+footer{padding:18px;text-align:center;color:#718293;font-size:10px}
+@media(max-width:1150px){.layout{grid-template-columns:245px minmax(360px,1fr) 280px;gap:8px;padding:8px}.chart-stack .chartbox{height:155px}}
+@media(max-width:900px){.layout{height:auto;min-height:0;overflow:visible;display:flex;flex-direction:column}.layout>aside.panel,.rightcol{position:static;height:auto;max-height:none;overflow:visible;width:100%}.map-column{position:relative;height:560px;min-height:560px}.map-wrap #map{height:470px;min-height:470px}.rightcol{display:flex;flex-direction:column}.chart-stack{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.header-right{text-align:left}}@media(max-width:560px){.chart-stack{grid-template-columns:1fr}.map-column{height:500px;min-height:500px}.map-wrap #map{height:410px;min-height:410px}}
+</style>
+</head>
+<body>
+<header>
+ <div class="brand"><div class="flag"></div><div><h1>SILKYSINGZ | GAMBIA URBAN TRANSPORT PLANNING & SIMULATION</h1><div class="sub">GIS • FOUR-STEP TRAVEL DEMAND MODEL • POLICY SCENARIOS • ACCESSIBILITY • INVESTMENT APPRAISAL</div></div></div>
+ <div class="header-right">THE GAMBIA · DEMONSTRATION EDITION<br>Local browser simulation · No server required</div>
+</header>
+<div class="toolbar">
+ <button class="primary" id="runBtn">▶ Run transport model</button><button id="resetBtn">↺ Reset scenario</button><button id="exportBtn">↓ Export results CSV</button><button id="printBtn">Print report</button>
+ <span class="status" id="status">Ready · illustrative demonstration data</span>
+</div>
+<div class="layout">
+ <aside class="panel left-controls">
+  <div class="panel-head">MODEL CONTROLS <span class="pill">INPUTS</span></div>
+  <div class="panel-body">
+   <div class="section"><h3>Study area & demand</h3>
+    <label>Geographic focus</label><select id="focus"><option value="gba">Greater Banjul Area</option><option value="national">National demonstration</option><option value="west">Western Region corridor</option><option value="urban">Urban centres</option></select>
+    <div class="grid2"><div><label>Population (demo)</label><input id="population" type="number" value="1250000" min="10000"></div><div><label>Daily trip rate</label><input id="tripRate" type="number" value="1.65" min=".1" max="6" step=".05"></div></div>
+    <label>Peak-hour share <span id="peakVal">12%</span></label><input id="peakShare" type="range" min="5" max="25" value="12">
+    <label>Average trip length (km)</label><input id="tripLength" type="number" value="9.5" min="1" step=".5">
+   </div>
+   <div class="section"><h3>Mode choice parameters</h3>
+    <label>Public transport fare (GMD)</label><input id="fare" type="number" value="25" min="0">
+    <label>Bus service frequency (minutes)</label><input id="frequency" type="number" value="12" min="2">
+    <label>Public transport attractiveness</label><input id="ptAttract" type="range" min="20" max="100" value="65">
+    <label>Fuel / vehicle cost index</label><input id="carCost" type="range" min="20" max="150" value="80">
+   </div>
+   <div class="section"><h3>Policy interventions</h3>
+    <label class="check"><input type="checkbox" id="brt"> Introduce BRT corridor</label>
+    <label class="check"><input type="checkbox" id="rail"> Test MRT / LRT concept corridor</label>
+    <label class="check"><input type="checkbox" id="pricing"> Apply congestion pricing</label>
+    <label class="check"><input type="checkbox" id="tod"> Transit-oriented development</label>
+    <label class="check"><input type="checkbox" id="closure"> Close selected road link</label>
+    <label>Congestion charge (GMD)</label><input id="charge" type="number" value="50" min="0">
+    <label>Parking policy</label><select id="parking"><option value="none">No change</option><option value="moderate">Moderate parking charge</option><option value="high">High parking charge</option></select>
+   </div>
+   <div class="section"><h3>Model settings</h3>
+    <label>Assignment iterations</label><input id="iterations" type="number" value="20" min="1" max="100">
+    <label>Gravity model friction factor</label><input id="beta" type="number" value=".12" min=".01" max="1" step=".01">
+    <button class="dark wide" id="accessBtn">Calculate PT accessibility</button>
+    <button class="wide" id="appraisalBtn">Run investment appraisal</button>
+   </div>
+   <p class="note">All initial demand, zones, costs and network capacities are assumed demonstration inputs. Replace them with validated census, household travel survey, road inventory, public transport and operator data before policy use.</p>
+  </div>
+
+  <section class="panel"><div class="panel-head">TRANSPORT DEMAND CHARTS</div><div class="panel-body"><p class="note">Charts update when the model is run. These are illustrative model outputs, not observed traffic counts.</p><div class="chart-stack">
+   <div class="chart-card"><h3>Mode share distribution</h3><div class="chartbox"><canvas id="modeChart"></canvas></div></div>
+   <div class="chart-card"><h3>Trip generation by zone</h3><div class="chartbox tall"><canvas id="tripChart"></canvas></div></div>
+   <div class="chart-card"><h3>Traffic volume vs road capacity</h3><div class="chartbox tall"><canvas id="vcChart"></canvas></div></div>
+   <div class="chart-card"><h3>Congestion feedback by iteration</h3><div class="chartbox"><canvas id="iterationChart"></canvas></div></div>
+   <div class="chart-card"><h3>Accessibility score by zone</h3><div class="chartbox tall"><canvas id="accessChart"></canvas></div></div>
+   <div class="chart-card"><h3>Scenario comparison</h3><div class="chartbox"><canvas id="scenarioChart"></canvas></div><table class="result-table" id="scenarioTable"><tr><th>Indicator</th><th>Baseline</th><th>Scenario</th><th>Change</th></tr></table></div>
+  </div></div></section>
+ </aside>
+
+ <main class="map-column">
+  <section class="panel map-panel">
+   <div class="panel-head">GAMBIA TRANSPORT NETWORK & SPATIAL SIMULATION <span class="pill">FIXED GIS MAP</span></div>
+   <div class="map-description"><b>Road-network view:</b> all displayed corridors use routed OpenStreetMap road geometry. Failed routes are omitted; no straight-line substitute is drawn.</div>
+   <div class="map-top"><label for="mapLayer" style="margin:0">Basemap</label><select id="mapLayer"><option value="osm">OpenStreetMap</option><option value="sat">Esri Satellite</option><option value="hybrid">Satellite + labels</option><option value="topo">Esri Topographic</option><option value="terrain">OpenTopoMap terrain</option><option value="light">Carto Light</option></select><select id="mapView"><option value="all">All demonstration zones</option><option value="gba">Greater Banjul focus</option></select><span id="roadStatus">Road-following routes load from OpenStreetMap routing data</span></div>
+   <div class="map-wrap"><div id="map"></div><div class="map-legend"><b>Map layers</b><br><span class="dot" style="background:#0c9b8e"></span>Road-following corridor<br><span class="dot" style="background:#e3ad42"></span>Proposed BRT overlay<br><span class="dot" style="background:#b36acb"></span>Proposed rail overlay<br><span class="dot" style="background:#d75b55"></span>Closure / congestion scenario<br><span class="dot" style="background:#356fa5"></span>Transport zone</div></div>
+  </section>
+ </main>
+
+ <aside class="rightcol">
+  <section class="panel"><div class="panel-head">LIVE MODEL STATISTICS</div><div class="panel-body"><div class="stat-grid"><div class="stat-mini"><small>Population input</small><strong id="statPop">1.25M</strong></div><div class="stat-mini"><small>Peak demand</small><strong id="statPeak">247K</strong></div><div class="stat-mini"><small>Vehicle trips</small><strong id="statCarTrips">—</strong></div><div class="stat-mini"><small>PT trips</small><strong id="statPTTrips">—</strong></div><div class="stat-mini"><small>Daily person-km</small><strong id="statPkm">—</strong></div><div class="stat-mini"><small>Road links modelled</small><strong id="statLinks">—</strong></div><div class="stat-mini"><small>Daily person trips</small><strong id="kTrips">—</strong></div><div class="stat-mini"><small>Public transport share</small><strong id="kPT">—</strong></div><div class="stat-mini"><small>Average V/C</small><strong id="kCong">—</strong></div><div class="stat-mini"><small>Accessibility proxy</small><strong id="kAccess">—</strong></div><div class="stat-mini"><small>Peak-hour trips</small><strong id="kPeak">—</strong></div><div class="stat-mini"><small>Private vehicle share</small><strong id="kCar">—</strong></div><div class="stat-mini"><small>Average trip time</small><strong id="kTime">—</strong></div><div class="stat-mini"><small>High V/C links</small><strong id="kHotLinks">—</strong></div></div><p class="note" style="margin-top:9px">Statistics update after each model run and describe the current synthetic demonstration scenario.</p></div></section>
+  <section class="panel"><div class="panel-head">MODEL WORKFLOW</div><div class="panel-body">
+   <table class="result-table"><tr><th>Step</th><th>Method</th><th>Status</th></tr><tr><td>1. Trip generation</td><td>Trip rates</td><td id="s1">Ready</td></tr><tr><td>2. Distribution</td><td>Gravity model</td><td id="s2">Ready</td></tr><tr><td>3. Mode choice</td><td>Multinomial logit proxy</td><td id="s3">Ready</td></tr><tr><td>4. Assignment</td><td>Frank-Wolfe-inspired</td><td id="s4">Ready</td></tr></table>
+   <p class="note">The browser demonstration uses a simplified iterative assignment approximation. It is not a calibrated production-grade equilibrium traffic assignment engine.</p>
+  </div></section>
+  <section class="panel"><div class="panel-head">SCENARIO PERFORMANCE</div><div class="panel-body"><div class="grid2"><div><label>Average travel time</label><div class="output" id="travelTime">—</div></div><div><label>Estimated emissions index</label><div class="output" id="emissions">—</div></div><div><label>Road demand / capacity</label><div class="output" id="vcRatio">—</div></div><div><label>PT trips / day</label><div class="output" id="ptTrips">—</div></div></div><label>Key model finding</label><div class="output" id="finding">Run the model to generate scenario results.</div></div></section>
+  <section class="panel"><div class="panel-head">AI TRANSPORT ASSISTANT <span class="pill">GROUNDED</span></div><div class="panel-body">
+   <p class="note">Ask about the latest simulation. Answers are generated from the current calculated outputs in this page, not from an external AI service.</p>
+   <label>Your question</label><input id="question" type="text" placeholder="e.g. What happened to public transport share?">
+   <button class="primary wide" id="askBtn">Ask about simulation</button>
+   <label>Simulation-based response</label><div class="output" id="answer">Run the model first, then ask a question about its calculated results.</div>
+  </div></section>
+  <section class="panel"><div class="panel-head">HOW TO INTERPRET RESULTS</div><div class="panel-body"><p class="note"><b>Trip generation:</b> estimates person trips from population and assumed trip rates.</p><p class="note"><b>Trip distribution:</b> uses a simplified gravity impedance function to represent interactions between zones.</p><p class="note"><b>Mode choice:</b> responds to assumed fare, service frequency, attractiveness and policy adjustments.</p><p class="note"><b>Traffic assignment:</b> applies an iterative congestion feedback approximation. It is not a validated full Frank–Wolfe implementation.</p><p class="note"><b>Road geometry:</b> routes are requested from OSRM's public routing demo and follow routable OpenStreetMap roads. If no route is returned, that corridor is omitted rather than drawn as a straight line.</p></div></section>
+  <section class="panel"><div class="panel-head">DATA & METHODOLOGY</div><div class="panel-body"><p class="note"><b>Demonstration geography:</b> Greater Banjul and selected national urban centres.</p><p class="note"><b>Potential data sources for a calibrated model:</b> GBoS census and EA boundaries; validated household travel surveys; road centreline and condition inventory; traffic counts; GTFS or operator route and timetable data; terminal and stop locations; land-use and employment data.</p><p class="note">OpenStreetMap basemap tiles require an internet connection. The model calculations run in this browser session.</p></div></section>
+
+  <section class="panel"><div class="panel-head">NETWORK & IMPACT CHARTS</div><div class="panel-body"><div class="chart-stack">
+   <div class="chart-card"><h3>Most congested road corridors (V/C)</h3><div class="chartbox tall"><canvas id="hotspotChart"></canvas></div></div>
+   <div class="chart-card"><h3>Estimated trip distance distribution</h3><div class="chartbox"><canvas id="distanceChart"></canvas></div></div>
+   <div class="chart-card"><h3>Relative emissions by travel mode</h3><div class="chartbox"><canvas id="emissionChart"></canvas></div></div>
+   <div class="chart-card"><h3>Daily travel demand indicators</h3><div class="chartbox"><canvas id="demandChart"></canvas></div></div>
+   <div class="chart-card"><h3>Accessibility classification</h3><div class="chartbox"><canvas id="accessClassChart"></canvas></div></div>
+   <div class="chart-card"><h3>Investment appraisal: annual benefits and costs</h3><div class="chartbox"><canvas id="financeChart"></canvas></div><div class="stat-grid" style="margin-top:8px"><div class="stat-mini"><small>NPV (GMD million)</small><strong id="npv">—</strong></div><div class="stat-mini"><small>BCR</small><strong id="bcr">—</strong></div><div class="stat-mini"><small>IRR</small><strong id="irr">—</strong></div><div class="stat-mini"><small>Payback (years)</small><strong id="payback">—</strong></div></div></div>
+   <div class="chart-card"><h3>Accessibility interpretation</h3><div id="accessText" class="output">Run the model to calculate the demonstration accessibility proxy.</div></div>
+  </div></div></section>
+ </aside>
+</div>
+<footer>Produced by Ansu Singhateh · GIS Analyst | GIS / Cartography Unit | Gambia Bureau of Statistics<br>SILKYSINGZ GEOAI • Research and educational use · Demonstration data are synthetic and must not be interpreted as official statistics.</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+const zoneData=[
+ {n:"Banjul",lat:13.4549,lon:-16.5790,p:75000,gen:1.65},
+ {n:"Kanifing",lat:13.4560,lon:-16.6750,p:380000,gen:1.9},
+ {n:"Serekunda",lat:13.4390,lon:-16.6780,p:250000,gen:2.0},
+ {n:"Bakau",lat:13.4780,lon:-16.6810,p:65000,gen:1.7},
+ {n:"Brikama",lat:13.2710,lon:-16.6490,p:130000,gen:1.7},
+ {n:"Lamin",lat:13.3520,lon:-16.6810,p:48000,gen:1.55},
+ {n:"Abuko",lat:13.4050,lon:-16.6590,p:42000,gen:1.8},
+ {n:"Yundum",lat:13.3630,lon:-16.7200,p:38000,gen:1.6},
+ {n:"Sukuta",lat:13.4100,lon:-16.7070,p:72000,gen:1.85},
+ {n:"Tanji",lat:13.3660,lon:-16.7890,p:30000,gen:1.5},
+ {n:"Farato",lat:13.2860,lon:-16.6900,p:22000,gen:1.45},
+ {n:"Soma",lat:13.4430,lon:-15.5350,p:18000,gen:1.5},
+ {n:"Farafenni",lat:13.5660,lon:-15.5950,p:26000,gen:1.55},
+ {n:"Kerewan",lat:13.4890,lon:-16.0880,p:12000,gen:1.4},
+ {n:"Basse",lat:13.3090,lon:-14.2130,p:18000,gen:1.5},
+ {n:"Janjanbureh",lat:13.5330,lon:-14.7670,p:9000,gen:1.35},
+ {n:"Brikama Ba",lat:13.2100,lon:-15.7500,p:8500,gen:1.35}
+];
+
+const routes=[["Banjul","Kanifing"],["Kanifing","Serekunda"],["Serekunda","Bakau"],["Serekunda","Sukuta"],["Sukuta","Yundum"],["Yundum","Brikama"],["Kanifing","Abuko"],["Abuko","Lamin"],["Lamin","Brikama"],["Brikama","Tanji"],["Brikama","Farato"],["Soma","Brikama Ba"],["Farafenni","Kerewan"],["Basse","Janjanbureh"]];
+const map=L.map('map',{preferCanvas:true}).setView([13.43,-16.62],10);
+const layers={
+ osm:L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap contributors',maxZoom:19}),
+ sat:L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{attribution:'Tiles © Esri',maxZoom:18}),
+ labels:L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',{attribution:'Labels © Esri',maxZoom:18}),
+ topo:L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',{attribution:'Tiles © Esri',maxZoom:18}),
+ terrain:L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',{attribution:'© OpenTopoMap contributors',maxZoom:17}),
+ light:L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{attribution:'© OpenStreetMap © CARTO',maxZoom:19})
+};layers.osm.addTo(map);
+const hybridLayer=L.layerGroup([layers.sat,layers.labels]);
+let routeLayer=L.layerGroup().addTo(map), zoneLayer=L.layerGroup().addTo(map), routeCache={};
+const routeColors={normal:'#0c9b8e',brt:'#e3ad42',rail:'#b36acb',closed:'#d75b55'};
+function roadRouteKey(a,b){return [a.n,b.n].sort().join('|')}
+async function fetchRoadGeometry(a,b){
+ const key=roadRouteKey(a,b);if(routeCache[key])return routeCache[key];
+ try{
+  const url=`https://router.project-osrm.org/route/v1/driving/${a.lon},${a.lat};${b.lon},${b.lat}?overview=full&geometries=geojson&steps=false`;
+  const response=await fetch(url);if(!response.ok)throw new Error('Routing service unavailable');
+  const data=await response.json();if(data.code!=='Ok'||!data.routes?.length)throw new Error('No drivable route returned');
+  const coords=data.routes[0].geometry.coordinates.map(c=>[c[1],c[0]]);
+  if(coords.length<2)throw new Error('Route geometry is incomplete');
+  routeCache[key]=coords;return coords;
+ }catch(e){console.warn('Road route unavailable:',a.n,b.n,e);return null}
+}
+let drawToken=0;
+async function drawMap(result){
+ const token=++drawToken;routeLayer.clearLayers();zoneLayer.clearLayers();
+ const selected=$('focus').value==='gba'?zoneData.filter(z=>z.lon<-16.45):zoneData;
+ selected.forEach(z=>{let r=result?result.zoneTrips[zoneData.indexOf(z)]:0;L.circleMarker([z.lat,z.lon],{radius:6+Math.min(8,r/70000),color:'#fff',weight:1,fillColor:'#356fa5',fillOpacity:.88}).bindPopup(`<b>${z.n}</b><br>Demonstration zone<br>Daily trips: ${result?Math.round(r).toLocaleString():'Run model to calculate'}`).addTo(zoneLayer)});
+ const visibleRoutes=routes.filter(r=>{let a=zoneData.find(z=>z.n===r[0]),b=zoneData.find(z=>z.n===r[1]);return a&&b&&selected.includes(a)&&selected.includes(b)});
+ $('roadStatus').textContent='Loading road-following routes…';let ok=0,failed=0;
+ // Public OSRM demo service: keep requests serial and do not substitute straight-line links.
+ for(let i=0;i<visibleRoutes.length;i++){
+  if(token!==drawToken)return;
+  const pair=visibleRoutes[i],a=zoneData.find(z=>z.n===pair[0]),b=zoneData.find(z=>z.n===pair[1]);
+  const coords=await fetchRoadGeometry(a,b);
+  if(token!==drawToken)return;
+  if(!coords){failed++;continue;}
+  const isBRT=$('brt').checked&&i===1,isRail=$('rail').checked&&i===3,isClosed=$('closure').checked&&i===3;
+  const color=isClosed?routeColors.closed:(isBRT?routeColors.brt:(isRail?routeColors.rail:routeColors.normal));
+  L.polyline(coords,{color,weight:(isBRT||isRail)?6:4,opacity:.88,dashArray:(isBRT||isRail)?'8 5':null}).bindPopup(`<b>${pair[0]} – ${pair[1]}</b><br>Road-following route from OSRM / OpenStreetMap<br>${isClosed?'Closure scenario indicator':isBRT?'Proposed BRT overlay':isRail?'Proposed rail corridor overlay':'Illustrative road corridor'}<br>Route length: ${(coords.reduce((sum,p,j)=>j?sum+map.distance(coords[j-1],p):0,0)/1000).toFixed(1)} km`).addTo(routeLayer);ok++;
+  // Respect the public demo routing service's low request-rate guidance.
+  if(i<visibleRoutes.length-1)await new Promise(resolve=>setTimeout(resolve,1050));
+ }
+ $('roadStatus').textContent=`${ok} road routes drawn${failed?` · ${failed} unavailable (not drawn)`:''} · OSM routing`;
+}
+$('mapLayer').onchange=()=>{Object.values(layers).forEach(l=>{if(map.hasLayer(l))map.removeLayer(l)});if(map.hasLayer(hybridLayer))map.removeLayer(hybridLayer);const choice=$('mapLayer').value;if(choice==='hybrid')hybridLayer.addTo(map);else layers[choice].addTo(map)};
+$('mapView').onchange=()=>map.setView($('mapView').value==='gba'?[13.43,-16.66]:[13.43,-15.85],$('mapView').value==='gba'?11:8);
+$('focus').onchange=()=>{drawMap(lastResult);map.setView($('focus').value==='gba'?[13.43,-16.66]:[13.43,-15.85],$('focus').value==='gba'?10:8)};
+$('peakShare').oninput=()=>$('peakVal').textContent=$('peakShare').value+'%';
+let charts={},lastResult=null,baseline=null;
+function chart(id,type,data,options={}){if(charts[id])charts[id].destroy();charts[id]=new Chart($(id),{type,data,options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{boxWidth:10,font:{size:10}}}},scales:type==='doughnut'||type==='pie'?{}:{x:{ticks:{font:{size:9}}},y:{beginAtZero:true,ticks:{font:{size:9}}}},...options}})}
+function fmt(n){return Math.round(n).toLocaleString('en-US')}
+function calculate(){
+ const pop=Math.max(10000,+$('population').value||1250000),rate=+$('tripRate').value||1.65,peak=+$('peakShare').value/100;
+ const daily=pop*rate,ptBoost=($('brt').checked?.10:0)+($('rail').checked?.08:0)+($('tod').checked?.05:0)+($('pricing').checked?.06:0);
+ let pt=Math.max(.12,Math.min(.82,.29+(+$('ptAttract').value-50)/250-(+$('fare').value-25)/500+ptBoost));
+ if($('parking').value==='moderate')pt+=.025;if($('parking').value==='high')pt+=.05;
+ let car=Math.max(.08,Math.min(.65,.48-(+$('carCost').value-80)/400-($('pricing').checked?.08:0)-($('parking').value==='high'?.06:0)));
+ let walk=Math.max(.08,1-pt-car);let sum=pt+car+walk;pt/=sum;car/=sum;walk/=sum;
+ const totalTrips=daily,zoneTrips=zoneData.map(z=>daily*(z.p/zoneData.reduce((s,x)=>s+x.p,0))*z.gen/(zoneData.reduce((s,x)=>s+x.p*x.gen,0)/zoneData.reduce((s,x)=>s+x.p,0)));
+ const beta=+$('beta').value||.12;
+ const dist=zoneData.map((z,i)=>zoneData.reduce((s,w,j)=>s+(i===j?0:w.p/Math.pow(Math.max(2,Math.hypot(z.lat-w.lat,z.lon-w.lon)*90),beta)),0));
+ const demand=zoneTrips.reduce((s,x)=>s+x,0)*peak*car;
+ const capacity=routes.map((r,i)=>i<11?Math.max(900,2200-(i%4)*180):700);
+ const linkDemand=routes.map((r,i)=>demand*(.035+(i%5)*.008)*(1+(pt<.3?.12:0))*( $('closure').checked&&i===3?1.65:1));
+ let vc=linkDemand.map((v,i)=>v/capacity[i]);let iterations=Math.min(100,Math.max(1,+$('iterations').value||20)),feedback=[];
+ let avg=vc.reduce((s,v)=>s+v,0)/vc.length;
+ for(let k=0;k<iterations;k++){let f=avg*(.72+Math.exp(-k/7)*.28);feedback.push(f);avg=f*.84+avg*.16;}
+ const avgVC=vc.reduce((s,v)=>s+v,0)/vc.length;
+ const accessBase=Math.min(.95,.42+pt*.62+(+$('frequency').value<10?.08:0)+($('brt').checked?.10:0)+($('rail').checked?.07:0)+($('tod').checked?.06:0));
+ const access=zoneData.map((z,i)=>Math.max(.12,Math.min(.98,accessBase-(i%6)*.045+(z.lon<-16.5?.04:0))));
+ const travel= Math.max(8,(+$('tripLength').value||9.5)*2.2*(1+Math.max(0,avgVC-.5)*.55));
+ const emissions=(car*.9+pt*.34+walk*.02)*100;
+ return {pop,daily,totalTrips,pt,car,walk,zoneTrips,vc,capacity,linkDemand,feedback,avgVC,access,accessBase,travel,emissions,ptTrips:daily*pt,carTrips:daily*car,walkTrips:daily*walk,peak,demand,dist,beta,peakTrips:daily*peak,personKm:daily*(+$('tripLength').value||9.5),hotLinks:vc.filter(v=>v>1).length};
+}
+function render(r){
+ lastResult=r;$('kTrips').textContent=(r.daily/1e6).toFixed(2)+'M';$('kPT').textContent=(r.pt*100).toFixed(1)+'%';$('kCong').textContent=r.avgVC.toFixed(2);$('kAccess').textContent=(r.accessBase*100).toFixed(0)+'%';$('kPeak').textContent=(r.peakTrips/1000).toFixed(0)+'K';$('kCar').textContent=(r.car*100).toFixed(1)+'%';$('kTime').textContent=r.travel.toFixed(1)+' min';$('kHotLinks').textContent=r.hotLinks+' / '+r.vc.length;$('statPop').textContent=(r.pop/1e6).toFixed(2)+'M';$('statPeak').textContent=fmt(r.peakTrips);$('statCarTrips').textContent=fmt(r.carTrips);$('statPTTrips').textContent=fmt(r.ptTrips);$('statPkm').textContent=(r.personKm/1e6).toFixed(2)+'M';$('statLinks').textContent=routes.length;
+ $('travelTime').textContent=r.travel.toFixed(1)+' min';$('emissions').textContent=r.emissions.toFixed(1)+' index';$('vcRatio').textContent=r.avgVC.toFixed(2);$('ptTrips').textContent=fmt(r.ptTrips);
+ $('finding').textContent=`The model estimates ${fmt(r.daily)} daily person trips. Public transport accounts for ${(r.pt*100).toFixed(1)}% of trips, while the average road volume-to-capacity ratio is ${r.avgVC.toFixed(2)}. ${r.avgVC>1?'Several modelled links exceed indicative capacity.':'Average modelled demand remains within indicative link capacity.'}`;
+ chart('modeChart','doughnut',{labels:['Public transport','Private vehicle','Walk / cycle'],datasets:[{data:[r.pt*100,r.car*100,r.walk*100],backgroundColor:['#0c9b8e','#e3ad42','#5b86b1']}]});
+ chart('tripChart','bar',{labels:zoneData.map(z=>z.n),datasets:[{label:'Daily trips',data:r.zoneTrips,backgroundColor:'#3a8292'}]},{indexAxis:'y',plugins:{legend:{display:false}}});
+ chart('vcChart','bar',{labels:routes.slice(0,10).map(x=>x[0]+'–'+x[1]),datasets:[{label:'Demand',data:r.linkDemand.slice(0,10),backgroundColor:'#0c9b8e'},{label:'Capacity',data:r.capacity.slice(0,10),backgroundColor:'#d9e1e7'}]},{scales:{x:{ticks:{font:{size:8}}},y:{beginAtZero:true}}});
+ chart('iterationChart','line',{labels:r.feedback.map((_,i)=>i+1),datasets:[{label:'Average congestion feedback',data:r.feedback,borderColor:'#d28c2d',backgroundColor:'#f4dfb8',tension:.25,fill:true}]});
+ const ranked=r.vc.map((v,i)=>({v,i})).sort((a,b)=>b.v-a.v).slice(0,8);
+ chart('hotspotChart','bar',{labels:ranked.map(x=>routes[x.i].join('–')),datasets:[{label:'Volume / capacity',data:ranked.map(x=>x.v),backgroundColor:ranked.map(x=>x.v>1?'#d75b55':'#0c9b8e')}]},{indexAxis:'y',plugins:{legend:{display:false}}});
+ chart('distanceChart','bar',{labels:['0–2 km','2–5 km','5–10 km','10–20 km','20+ km'],datasets:[{label:'Illustrative share (%)',data:[12,24,31,23,10],backgroundColor:'#3a8292'}]},{plugins:{legend:{display:false}}});
+ chart('emissionChart','doughnut',{labels:['Private vehicle','Public transport','Walk / cycle'],datasets:[{data:[r.car*.9,r.pt*.34,r.walk*.02],backgroundColor:['#e3ad42','#0c9b8e','#5b86b1']}]});
+ chart('demandChart','bar',{labels:['Person trips','PT trips','Car trips','Walk / cycle'],datasets:[{label:'Trips per day',data:[r.daily,r.ptTrips,r.carTrips,r.walkTrips],backgroundColor:['#173651','#0c9b8e','#e3ad42','#5b86b1']}]},{plugins:{legend:{display:false}}});
+ if(baseline){renderScenario(r)}
+ drawMap(r);
+ ['s1','s2','s3','s4'].forEach(id=>$(id).innerHTML='<span style="color:#248b63">Calculated ✓</span>');
+ $('status').textContent='Model completed · '+new Date().toLocaleTimeString();
+}
+function renderAccess(r){
+ chart('accessChart','bar',{labels:zoneData.map(z=>z.n),datasets:[{label:'PT accessibility score',data:r.access.map(x=>x*100),backgroundColor:r.access.map(x=>x<.4?'#d75b55':x<.65?'#e3ad42':'#0c9b8e')}]},{indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{max:100}}});
+ let cls=[r.access.filter(x=>x<.4).length,r.access.filter(x=>x>=.4&&x<.65).length,r.access.filter(x=>x>=.65).length];
+ chart('accessClassChart','doughnut',{labels:['Low','Moderate','High'],datasets:[{data:cls,backgroundColor:['#d75b55','#e3ad42','#0c9b8e']}]});
+ let low=zoneData.filter((z,i)=>r.access[i]<.4).map(z=>z.n);
+ $('accessText').textContent=`The illustrative PT accessibility proxy indicates ${(r.accessBase*100).toFixed(1)}% overall accessibility. ${cls[0]} zones are classified low, ${cls[1]} moderate and ${cls[2]} high. Priority zones for further investigation: ${low.length?low.join(', '):'none under the current threshold'}. This is not a formal UK PTAL calculation; validated stop locations, service frequency, walking catchments and timetable data are required for formal PTAL.`;
+}
+function appraisal(r){
+ let capex=$('rail').checked?1800:($('brt').checked?650:350),opex=capex*.055,annualBenefit=(r.daily*365/1e6)*(.012+r.pt*.018)*100,discount=.10,years=20,npv=-capex;
+ for(let y=1;y<=years;y++)npv+=(annualBenefit-opex)/Math.pow(1+discount,y);
+ let bcr=(annualBenefit*((1-Math.pow(1+discount,-years))/discount))/(capex+opex*((1-Math.pow(1+discount,-years))/discount));
+ let irr=(annualBenefit-opex)/capex*100, payback=capex/Math.max(1,annualBenefit-opex);
+ $('npv').textContent=npv.toFixed(0);$('bcr').textContent=bcr.toFixed(2);$('irr').textContent=irr.toFixed(1)+'%';$('payback').textContent=payback.toFixed(1);
+ chart('financeChart','bar',{labels:['Annual operating cost','Annual estimated benefit'],datasets:[{data:[opex,annualBenefit],backgroundColor:['#d75b55','#0c9b8e']}]},{plugins:{legend:{display:false}}});
+}
+function renderScenario(r){
+ const b=baseline;let rows=[['Daily trips',fmt(b.daily),fmt(r.daily),((r.daily/b.daily-1)*100).toFixed(1)+'%'],['Public transport share',(b.pt*100).toFixed(1)+'%',(r.pt*100).toFixed(1)+'%',((r.pt-b.pt)*100).toFixed(1)+' pp'],['Average V/C',b.avgVC.toFixed(2),r.avgVC.toFixed(2),((r.avgVC/b.avgVC-1)*100).toFixed(1)+'%'],['Travel time',b.travel.toFixed(1)+' min',r.travel.toFixed(1)+' min',((r.travel/b.travel-1)*100).toFixed(1)+'%'],['Accessibility',(b.accessBase*100).toFixed(1)+'%',(r.accessBase*100).toFixed(1)+'%',((r.accessBase-b.accessBase)*100).toFixed(1)+' pp']];
+ $('scenarioTable').innerHTML='<tr><th>Indicator</th><th>Baseline</th><th>Scenario</th><th>Change</th></tr>'+rows.map(x=>'<tr>'+x.map(y=>'<td>'+y+'</td>').join('')+'</tr>').join('');
+ chart('scenarioChart','bar',{labels:['PT share (%)','Avg V/C × 50','Access (%)','Travel time (min)'],datasets:[{label:'Baseline',data:[b.pt*100,b.avgVC*50,b.accessBase*100,b.travel],backgroundColor:'#9eabb6'},{label:'Scenario',data:[r.pt*100,r.avgVC*50,r.accessBase*100,r.travel],backgroundColor:'#0c9b8e'}]});
+}
+$('runBtn').onclick=()=>{let r=calculate();render(r)};
+$('resetBtn').onclick=()=>{['brt','rail','pricing','tod','closure'].forEach(id=>$(id).checked=false);$('fare').value=25;$('frequency').value=12;$('ptAttract').value=65;$('carCost').value=80;$('charge').value=50;$('parking').value='none';$('population').value=1250000;$('tripRate').value=1.65;$('peakShare').value=12;$('peakVal').textContent='12%';baseline=null;render(calculate());$('status').textContent='Scenario reset'};
+$('accessBtn').onclick=()=>{if(!lastResult)render(calculate());renderAccess(lastResult);$('accessText').scrollIntoView({behavior:'smooth',block:'nearest'});};
+$('appraisalBtn').onclick=()=>{if(!lastResult)render(calculate());appraisal(lastResult);$('financeChart').scrollIntoView({behavior:'smooth',block:'nearest'});};
+$('exportBtn').onclick=()=>{if(!lastResult)render(calculate());let r=lastResult,rows=[['Zone','Daily trips','PT accessibility score'],...zoneData.map((z,i)=>[z.n,Math.round(r.zoneTrips[i]),r.access[i].toFixed(3)])];let csv=rows.map(x=>x.join(',')).join('\n');let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='Gambia_Transport_Simulation_Results.csv';a.click();URL.revokeObjectURL(a.href)};
+$('printBtn').onclick=()=>window.print();
+$('askBtn').onclick=()=>{if(!lastResult){$('answer').textContent='Please run the transport model first.';return}let r=lastResult,q=$('question').value.toLowerCase(),answer;
+if(q.includes('public')||q.includes('mode')||q.includes('share'))answer=`Public transport represents ${(r.pt*100).toFixed(1)}% of modelled trips, equivalent to approximately ${fmt(r.ptTrips)} daily trips. This estimate responds to the fare, frequency, attractiveness and policy inputs currently selected.`;
+else if(q.includes('congest')||q.includes('traffic')||q.includes('capacity'))answer=`The average modelled volume-to-capacity ratio is ${r.avgVC.toFixed(2)}. ${r.avgVC>1?'Average demand is above the assumed capacity benchmark.':'Average demand is below the assumed capacity benchmark.'} Review the link-level demand and capacity chart to identify pressure points.`;
+else if(q.includes('access')||q.includes('ptal')||q.includes('underserved'))answer=`The model's accessibility proxy is ${(r.accessBase*100).toFixed(1)}%. Inspect the accessibility charts in the left and right analysis panels. This is not a formal PTAL result.`;
+else if(q.includes('trip')||q.includes('demand'))answer=`The model estimates ${fmt(r.daily)} daily person trips, with ${fmt(r.daily*r.peak)} trips occurring in the assumed peak period. The zone chart shows the distribution of generated trips.`;
+else if(q.includes('time'))answer=`The model estimates an average trip time of ${r.travel.toFixed(1)} minutes under the current assumptions. It is a simplified congestion-sensitive indicator, not observed travel time.`;
+else if(q.includes('emission'))answer=`The illustrative emissions index is ${r.emissions.toFixed(1)}. It is a relative model indicator, not a measured inventory of greenhouse-gas emissions.`;
+else answer=`Current simulation: ${fmt(r.daily)} daily trips; ${(r.pt*100).toFixed(1)}% public transport share; average V/C ${r.avgVC.toFixed(2)}; accessibility proxy ${(r.accessBase*100).toFixed(1)}%; average trip time ${r.travel.toFixed(1)} minutes. Ask about trips, public transport, congestion, accessibility, travel time or emissions for a focused interpretation.`;
+$('answer').textContent=answer};
+baseline=calculate();render(calculate());setTimeout(()=>map.invalidateSize(),250);window.addEventListener('resize',()=>map.invalidateSize());
+</script>
+</body>
+</html>
